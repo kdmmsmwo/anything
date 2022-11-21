@@ -100,15 +100,32 @@ cacheindex* initcache(int csize, int bsize, int ssize, int idx){
     cache[i].block = createline(ssize, bsize);
   }
 
+  return cache;
+}
+
+void printcache(cacheindex* cache, int bsize, int ssize, int idx){
+  int datasize = bsize/4;
+  for (int i = 0 ; i<idx ; i++){
+    printf("%d: ",i);
+    for (int k = 0 ; k<ssize ; k++){
+      
+      for (int j = 0;j<datasize;j++){
+        printf("%d ",cache[i].block[k].data[j]);
+      }
+      printf(" v:%d, d:%d\n",cache[i].block[k].valid,cache[i].block[k].dirty);
+
+    }
+
+  }
 
 }
 
 int main(int argc, char* argv[]){
   int hitcount = 0;
   int misscount = 0;
-  int cachesize;
-  int blocksize;
-  int setsize;
+  int cachesize = 64;
+  int blocksize=8;
+  int setsize=2;
   FILE* trace = fopen("sample.trc","r");
 
   if (trace == NULL) {
@@ -128,16 +145,16 @@ int main(int argc, char* argv[]){
     }
   }
 
+  int idx = ((cachesize / blocksize) / setsize);
   char str[50];
   fgets(str,50,trace);
   printf("\n%s\n",str);
-  fgets(str,50,trace);
-  printf("\n%s\n",str);
-  
+
   int* line = linetoint(str);
   printf("\n%d %d %d\n",line[0],line[1],line[2]);
-
-
+  
+  cacheindex* cache = initcache(cachesize, blocksize, setsize, idx);
+  printcache(cache, blocksize, setsize, idx);
 
   fclose(trace);
   return 0;
